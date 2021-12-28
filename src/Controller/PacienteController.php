@@ -141,7 +141,7 @@ class PacienteController extends AbstractController
         $personaContacto = $em->getRepository(ContactoEmergencia::class)->find($paciente->getPersonaContacto()->getId());
         $request->get('nombreContacto') != "" ? $personaContacto->setNombre($request->get('nombreContacto')) : false;
         $request->get('telefonoContacto') != "" ? $personaContacto->setTelefono($request->get('telefonoContacto')) : false;
-        // $em->flush();
+
         return $personaContacto;
     }
 
@@ -149,7 +149,7 @@ class PacienteController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $request->get('numSeguridadSocial') != "" ? $paciente->setNumSeguroSocial($request->get('numSeguridadSocial')) : false;
         $request->get('estado') != "" ? $paciente->setEstado($request->get('estado')) : false;
-        // $em->flush();
+        
         return $paciente;
     }
     
