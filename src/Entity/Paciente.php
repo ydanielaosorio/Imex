@@ -40,6 +40,22 @@ class Paciente
      */
     private $tipoDocumento;
 
+    // /**
+    //  * @ORM\Column(type="integer")
+    //  */
+    // private $numSeguroSocial;
+
+    /**
+     * @ORM\OneToOne(targetEntity=ContactoEmergencia::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn()
+     */
+    private $personaContacto;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $numSeguroSocial;
+
     public function getIdPaciente(): ?int
     {
         return $this->idPaciente;
@@ -67,6 +83,28 @@ class Paciente
         $this->tipoDocumento = $tipoDocumento;
 
         return $this;
+    }
+
+    public function getNumSeguroSocial(): ?int
+    {
+        return $this->numSeguroSocial;
+    }
+
+    public function setNumSeguroSocial(int $numSeguroSocial): self
+    {
+        $this->numSeguroSocial = $numSeguroSocial;
+
+        return $this;
+    }
+
+    public function getPersonaContacto(): ?ContactoEmergencia
+    {
+        return $this->personaContacto;
+    }
+
+    public function setPersonaContacto(ContactoEmergencia $personaContacto): void
+    {
+        $this->personaContacto = $personaContacto;
     }
 
 

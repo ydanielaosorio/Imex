@@ -75,6 +75,27 @@ class PersonData
      */
     private $tipoDocumento;
 
+
+    public function __construct(
+        $tipoDocumento=null,
+        $documento=null,
+        $nombre=null,
+        $telefono=null,
+        $sexo=null,
+        $correo=null,
+        $direccion=null, 
+        $fechaNacimiento=null
+    ){
+        $this->tipoDocumento = $tipoDocumento;
+        $this->documento = $documento;
+        $this->nombre = $nombre;
+        $this->telefono = $telefono;
+        $this->sexo = $sexo;
+        $this->correo = $correo;
+        $this->direccion = $direccion;
+        $this->fechaNacimiento = $fechaNacimiento;
+    }
+
     public function getDocumento(): ?int
     {
         return $this->documento;
