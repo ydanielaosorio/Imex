@@ -80,4 +80,16 @@ class PersonDataRepository extends ServiceEntityRepository
         
         return $query->execute();;
     }
+
+    public function eliminarPersonData($personDataEliminar){
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->delete()
+        ->from(PersonData::class, 'pd')
+        ->where('pd.documento = :documento and pd.tipoDocumento in (SELECT td.id FROM App:PersonData pd2 JOIN pd2.tipoDocumento td WHERE td.id = :tipoDocumento)')
+        ->setParameters($personDataEliminar)
+        ->getQuery()
+        ->execute()
+        ;
+        return $queryBuilder;
+    }
 }

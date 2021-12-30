@@ -56,6 +56,13 @@ class Paciente
      */
     private $numSeguroSocial;
 
+    public function __construct($estado, $numSeguroSocial, $tipoDocumento, $personaContacto){
+        $this->estado = $estado;
+        $this->tipoDocumento = $tipoDocumento;
+        $this->personaContacto = $personaContacto;
+        $this->numSeguroSocial = $numSeguroSocial;
+    }
+
     public function getIdPaciente(): ?int
     {
         return $this->idPaciente;

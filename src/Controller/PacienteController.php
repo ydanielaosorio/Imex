@@ -34,6 +34,33 @@ class PacienteController extends AbstractController
     }
 
     /**
+     * @Route("/paciente/eliminar/{idPaciente}", name="eliminarPaciente")
+     */
+    public function eliminarPaciente($idPaciente = null)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $paciente = $em->getRepository(Paciente::class)->find($idPaciente);
+        $personDataEliminar = [
+            'documento' => $paciente->getTipoDocumento()->getDocumento(),
+            'tipoDocumento' => $paciente->getTipoDocumento()->getTipoDocumento()->getId()
+        ];
+        $contactoEmergencia = $em->getRepository(ContactoEmergencia::class)->find($paciente->getPersonaContacto()->getId());
+        $em->remove($contactoEmergencia);
+        $em->remove($paciente);
+        $em->flush();
+        $eliminarPersonData = $em->getRepository(PersonData::class)->eliminarPersonData($personDataEliminar);
+        
+        $jsPaciente = array(
+            "id"=>$paciente->getIdPaciente(), 
+            "nombre"=>$paciente->getTipoDocumento()->getNombre(), 
+            "estado"=>($paciente->getEstado()) ? 'Activo' : 'No activo', 
+            "telefono"=>$paciente->getTipoDocumento()->getTelefono()
+        );
+        return new JsonResponse($jsPaciente);
+
+    }
+
+    /**
      * 
      * @Route("/paciente/guardar", name="guardarPaciente", methods={"POST"})
      */
@@ -42,9 +69,18 @@ class PacienteController extends AbstractController
         $em = $this->getDoctrine()->getManager();
 
         $tipoDocumento = $em->getRepository(TipoDocumento::class)->find($request->get('tipoDocumento'));
-        $personData = $this->agregarDatosPersona($request, $tipoDocumento);
-        $personaContacto = $this->agregarContactoPersona($request);
-        $paciente = $this->agregarDatosPaciente($request, $personData, $personaContacto);
+        $personData = new PersonData(
+            $tipoDocumento, 
+            $request->get('documento'),
+            $request->get('nombre'), 
+            $request->get('telefono'),
+            $request->get('sexo'), 
+            $request->get('correo'),
+            $request->get('direccion'),
+            new \DateTime($request->get('fechaNacimiento'))
+        );
+        $personaContacto = new ContactoEmergencia($request->get('nombreContacto'), $request->get('telefonoContacto'));
+        $paciente = new Paciente($request->get('estado'), $request->get('numSeguridadSocial'), $personData, $personaContacto);
         
         $em->persist($personData);
         $em->persist($personaContacto);
@@ -82,40 +118,6 @@ class PacienteController extends AbstractController
         );
         return new JsonResponse($jsPaciente);
     }
-
-    public function agregarDatosPersona($request, $tipoDocumento){
-
-        $personData = new PersonData();
-        $personData->setTipoDocumento($tipoDocumento);
-        $personData->setNombre($request->get('nombre'));
-        $personData->setDocumento($request->get('documento'));
-        $personData->setTelefono($request->get('telefono'));
-        $personData->setCorreo($request->get('correo'));
-        $personData->setSexo($request->get('sexo'));
-        $personData->setDireccion($request->get('direccion'));
-        $personData->setFechaNacimiento(new \DateTime($request->get('fechaNacimiento')));
-
-        return $personData;
-    }
-
-    public function agregarContactoPersona($request){
-
-        $personaContacto = new ContactoEmergencia();
-        $personaContacto->setNombre($request->get('nombreContacto'));
-        $personaContacto->setTelefono($request->get('telefonoContacto'));
-
-        return $personaContacto;
-    }
-
-    public function agregarDatosPaciente($request, $personData, $personaContacto){
-        $paciente = new Paciente();
-        $paciente->setTipoDocumento($personData);
-        $paciente->setEstado($request->get('estado'));
-        $paciente->setNumSeguroSocial($request->get('numSeguridadSocial'));
-        $paciente->setPersonaContacto($personaContacto);
-
-        return $paciente;
-    }
     
     public function editarDatosPersona($paciente, $personData, $request){
 
@@ -149,7 +151,7 @@ class PacienteController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $request->get('numSeguridadSocial') != "" ? $paciente->setNumSeguroSocial($request->get('numSeguridadSocial')) : false;
         $request->get('estado') != "" ? $paciente->setEstado($request->get('estado')) : false;
-        
+
         return $paciente;
     }
     

@@ -27,6 +27,11 @@ class ContactoEmergencia
      */
     private $telefono;
 
+    public function __construct($nombre, $telefono){
+        $this->nombre = $nombre;
+        $this->telefono = $telefono;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
