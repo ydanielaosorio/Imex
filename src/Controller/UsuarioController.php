@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Paciente;
 use App\Entity\PersonData;
 use App\Entity\TipoDocumento;
+use App\Utilities\UtilityEditar;
 use App\Entity\Rol;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,62 +18,37 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UsuarioController extends AbstractController
 {
     /**
-     * @Route("/usuario", name="usuario")
-     */
-    public function index(): Response
-    {
-        return $this->render('usuario/index.html.twig', [
-            'controller_name' => 'UsuarioController',
-        ]);
-    }
-
-    /**
      * @Route("/usuario/buscar/{idUsuario}", name="buscar")
      */
-    public function buscarUsuario($idUsuario = null, UserPasswordEncoderInterface $passwordEncoder)
+    public function buscarUsuario($idUsuario = null)
     {
 
         $em = $this->getDoctrine()->getManager();
-        // $usuario = $em->getRepository(User::class)->find($idUsuario);
-        $roles = [];
-        $rol1 = $em->getRepository(Rol::class)->find(1);
-        array_push($roles, $rol1);
-        $rol2 = $em->getRepository(Rol::class)->find(2);
-        array_push($roles, $rol2);
-        $tipoDocumento = $em->getRepository(TipoDocumento::class)->find(1);
+        $user = $em->getRepository(User::class)->find($idUsuario);
 
-        $personData = $personData = new PersonData(
-            $tipoDocumento, 
-            3333331,
-            'Felipe Jaramillo', 
-            5555555,
-            0, 
-            '@gmal',
-            'itagui',
-            new \DateTime()
-        );
+        $roles = $user->getRoles();
+        $nombreRoles = [];
 
-        $user = new User('akuji3', $personData);
-        $user->setPassword($passwordEncoder->encodePassword($user, '140994'));
-        $user->addRole($rol1);
-        $user->addRole($rol2);
-        // $em->persist($personData);
-        // $em->persist($user);
-        // $em->flush();
-        var_dump($user->getRoles()[0]);
-        return $this->render('usuario/index.html.twig', [
-            'controller_name' => 'UsuarioController',
-        ]);
+        for($i=0; $i<count($roles); $i++){
+            array_push($nombreRoles, $roles[$i]->getNombre());
+        }
+        
+        $jsUsuario = array(
+            "id" => $user->getId(),
+            "nombre" => $user->getTipoDocumento()->getNombre(),
+            "telefono" => $user->getTipoDocumento()->getTelefono(),
+            "roles" => $roles
+        );        
+        return new JsonResponse($jsUsuario);
     }
 
     /**
      * 
-     * @Route("/usuario/guardar", name="guardarUsuario")
+     * @Route("/usuario/guardar", name="guardarUsuario", methods={"POST"})
      */
-    public function agregarPaciente(Request $request, UserPasswordEncoderInterface $passwordEncoder)
+    public function agregarUsuario(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
         $em = $this->getDoctrine()->getManager();
-
         $tipoDocumento = $em->getRepository(TipoDocumento::class)->find($request->get('tipoDocumento'));
         $personData = $personData = new PersonData(
             $tipoDocumento, 
@@ -84,30 +60,97 @@ class UsuarioController extends AbstractController
             $request->get('direccion'),
             new \DateTime($request->get('fechaNacimiento'))
         );
-
         $user = new User(
             $request->get('username'),
             $personData,
         );
         $user->setPassword($passwordEncoder->encodePassword($user, $request->get('password')));
-        
         $idRoles = $request->get('roles');
+        $nombreRoles = [];
 
         for($i=0; $i<count($idRoles); $i++){
             $rol = $em->getRepository(Rol::class)->find($idRoles[$i]);
             $rol != null ? $user->addRole($rol) : false;
+            array_push($nombreRoles, $rol->getNombre());
         }
 
         $em->persist($personData);
         $em->persist($user);
         $em->flush();
 
-        // $jsPaciente = array(
-        //     "id"=>$paciente->getIdPaciente(), 
-        //     "nombre"=>$paciente->getTipoDocumento()->getNombre(), 
-        //     "estado"=>($paciente->getEstado()) ? 'Activo' : 'No activo', 
-        //     "telefono"=>$paciente->getTipoDocumento()->getTelefono()
-        // );
-        return new JsonResponse('holi');
+        $jsUsuario = array(
+            "id" => $user->getId(),
+            "nombre" => $user->getTipoDocumento()->getNombre(),
+            "telefono" => $user->getTipoDocumento()->getTelefono(),
+            "roles" =>  $nombreRoles
+        );        
+        return new JsonResponse($jsUsuario);
     }
+
+    /**
+     * @Route("/usuario/eliminar/{idUser}", name="eliminarUsuario", methods={"DELETE"})
+     */
+    public function eliminarUsuario($idUser = null)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository(User::class)->find($idUser);
+        $personDataEliminar = [
+            'documento' => $user->getTipoDocumento()->getDocumento(),
+            'tipoDocumento' => $user->getTipoDocumento()->getTipoDocumento()->getId()
+        ];
+        
+        $em->remove($user);
+        $em->flush();
+        $eliminarPersonData = $em->getRepository(PersonData::class)->eliminarPersonData($personDataEliminar);
+
+        $roles = $user->getRoles();
+        $nombreRoles = [];
+
+        for($i=0; $i<count($roles); $i++){
+            array_push($nombreRoles, $roles[$i]->getNombre());
+        }
+        
+        $jsUsuario = array(
+            "id" => $user->getId(),
+            "nombre" => $user->getTipoDocumento()->getNombre(),
+            "telefono" => $user->getTipoDocumento()->getTelefono(),
+            "roles" =>  $nombreRoles
+        );        
+        return new JsonResponse($jsUsuario);
+
+    }
+    
+    /**
+     * @Route("/usuario/editar", name="editarUsuario", methods={"POST"})
+     */
+    public function editarUsuario(Request $request, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository(User::class)->find($request->get('idUsuario'));
+        $personData = $em->getRepository(PersonData::class)->buscarPersonData($user->getTipoDocumento()->getTipoDocumento()->getId(), $user->getTipoDocumento()->getDocumento());
+        
+        $utility = new UtilityEditar($this->getDoctrine());
+
+        $datosPersona = $utility->editarDatosPersona($user, $personData, $request);
+
+        $datosUser = $utility->editarDAtosUsuario($user, $request, $passwordEncoder);
+
+        $roles = $user->getRoles();
+        $nombreRoles = [];
+
+        for($i=0; $i<count($roles); $i++){
+            array_push($nombreRoles, $roles[$i]->getNombre());
+        }
+        
+        $jsUsuario = array(
+            "id" => $user->getId(),
+            "nombre" => $user->getTipoDocumento()->getNombre(),
+            "telefono" => $user->getTipoDocumento()->getTelefono(),
+            "roles" =>  $nombreRoles
+        ); 
+
+        return new JsonResponse($jsUsuario);
+    }
+    
+    
 }

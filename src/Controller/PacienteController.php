@@ -6,10 +6,9 @@ use App\Entity\ContactoEmergencia;
 use App\Entity\Paciente;
 use App\Entity\PersonData;
 use App\Entity\TipoDocumento;
+use App\Utilities\UtilityEditar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,7 +33,7 @@ class PacienteController extends AbstractController
     }
 
     /**
-     * @Route("/paciente/eliminar/{idPaciente}", name="eliminarPaciente")
+     * @Route("/paciente/eliminar/{idPaciente}", name="eliminarPaciente", methods={"DELETE"})
      */
     public function eliminarPaciente($idPaciente = null)
     {
@@ -104,12 +103,12 @@ class PacienteController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $paciente = $em->getRepository(Paciente::class)->find($request->get('idPaciente'));
         $personData = $em->getRepository(PersonData::class)->buscarPersonData($paciente->getTipoDocumento()->getTipoDocumento()->getId(), $paciente->getTipoDocumento()->getDocumento());
-        $datosPersona = $this->editarDatosPersona($paciente, $personData, $request);
-        $personaContacto = $this->editarContactoPersona($paciente, $request);
-        $datosPaciente = $this->editarDatosPaciente($paciente, $request);
         
-        $em->flush();
-        
+        $utiity = new UtilityEditar($this->getDoctrine());
+
+        $datosPersona = $utiity->editarDatosPersona($paciente, $personData, $request);
+        $personaContacto = $utiity->editarContactoPersona($paciente, $request);
+        $datosPaciente = $utiity->editarDatosPaciente($paciente, $request);
         $jsPaciente = array(
             "id"=>$paciente->getIdPaciente(), 
             "nombre"=>$paciente->getTipoDocumento()->getNombre(), 

@@ -44,4 +44,14 @@ class Rol
         $this->user = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    public function getNombre(): ?string
+    {
+        return $this->nombre;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
 }
