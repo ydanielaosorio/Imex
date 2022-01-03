@@ -1,0 +1,9 @@
+App\Entity\Paciente:
+    attributes:
+        idPaciente:
+            groups: ['paciente']
+        estado:
+            groups: ['paciente']
+        tipoDocumento:
+            groups: ['paciente']
+        

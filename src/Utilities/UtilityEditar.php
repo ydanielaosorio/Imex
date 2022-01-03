@@ -66,7 +66,7 @@ class UtilityEditar
     }
 
     /*Editar los datos del usuario*/
-    public function editarDAtosUsuario($user, $request, $passwordEncoder){
+    public function editarDatosUsuario($user, $request, $passwordEncoder){
         $em = $this->doctrine->getManager();
         $request->get('username') != "" ? $user->setUsername(($request->get('username'))) : false;
         $request->get('password') != "" ? $user->setPassword($passwordEncoder->encodePassword($user, $request->get('password'))) : false;
