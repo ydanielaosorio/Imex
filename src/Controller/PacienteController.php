@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controller\api;
+namespace App\Controller;
 
 use App\Entity\ContactoEmergencia;
 use App\Entity\Paciente;
 use App\Entity\PersonData;
+use App\Entity\TipoDocumento;
 use App\Utilities\UtilityEditar;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,6 +56,8 @@ class PacienteController extends AbstractFOSRestController
     public function agregarPacienteAction(Request $request, ManagerRegistry $doctrine)
     {
         $em = $doctrine->getManager();
+        $paciente = $em->getRepository(Paciente::class)->find(22);
+
 
         $tipoDocumento = $em->getRepository(TipoDocumento::class)->find($request->get('tipoDocumento'));
         $personData = new PersonData(

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\api;
+namespace App\Controller;
 
 use App\Entity\PersonData;
 use App\Entity\TipoDocumento;
