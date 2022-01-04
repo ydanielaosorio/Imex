@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Rol
@@ -26,6 +27,7 @@ class Rol
      * @var string
      *
      * @ORM\Column(name="nombre", type="string", length=255, nullable=false)
+     * @Groups({"user"})
      */
     private $nombre;
 

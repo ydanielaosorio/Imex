@@ -1,9 +1,0 @@
-App\Entity\User:
-    attributes:
-        id:
-            groups: ['user']
-        username:
-            groups: ['user']
-        roles:
-            groups: ['user']
-        

@@ -1,5 +1,0 @@
-App\Entity\Rol:
-    attributes:
-        nombre:
-            groups: ['user']
-       

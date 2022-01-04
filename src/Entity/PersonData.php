@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * PersonData
@@ -25,6 +26,7 @@ class PersonData
      * @var string
      *
      * @ORM\Column(name="nombre", type="string", length=255, nullable=false)
+     * @Groups({"paciente", "user"})
      */
     private $nombre;
 
@@ -32,6 +34,7 @@ class PersonData
      * @var string|null
      *
      * @ORM\Column(name="telefono", type="string", length=20, nullable=true)
+     * @Groups({"paciente"})
      */
     private $telefono;
 

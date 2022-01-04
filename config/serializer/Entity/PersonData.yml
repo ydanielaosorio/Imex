@@ -1,6 +1,0 @@
-App\Entity\PersonData:
-    attributes:
-        nombre:
-            groups: ['paciente']
-        telefono:
-            groups: ['paciente']

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Paciente
@@ -19,6 +20,7 @@ class Paciente
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="SEQUENCE")
      * @ORM\SequenceGenerator(sequenceName="paciente_id_paciente_seq", allocationSize=1, initialValue=1)
+     * @Groups({"paciente"})
      */
     private $idPaciente;
 
@@ -26,6 +28,7 @@ class Paciente
      * @var bool
      *
      * @ORM\Column(name="estado", type="boolean", nullable=false)
+     * @Groups({"paciente"})
      */
     private $estado;
 
@@ -37,6 +40,7 @@ class Paciente
      *   @ORM\JoinColumn(name="tipo_documento", referencedColumnName="tipo_documento"),
      *   @ORM\JoinColumn(name="documento", referencedColumnName="documento")
      * })
+     * @Groups({"paciente"})
      */
     private $tipoDocumento;
 
@@ -53,6 +57,7 @@ class Paciente
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"paciente"})
      */
     private $numSeguroSocial;
 
